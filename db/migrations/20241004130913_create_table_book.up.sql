@@ -1,0 +1,7 @@
+CREATE TABLE book(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    isbn TEXT NOT NULL UNIQUE,
+    author_id INTEGER NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES author(id)
+)

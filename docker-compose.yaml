@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app-library:
+    container_name: app-library
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: library-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - db-library:/config/db
+
+volumes:
+  db-library:
