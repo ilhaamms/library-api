@@ -3,8 +3,11 @@ package main
 import (
 	"log"
 
-	"github.com/gin-gonic/gin"
+	"github.com/ilhaamms/library-api/api"
 	"github.com/ilhaamms/library-api/config"
+	"github.com/ilhaamms/library-api/controller"
+	"github.com/ilhaamms/library-api/repository"
+	"github.com/ilhaamms/library-api/service"
 )
 
 func main() {
@@ -13,18 +16,12 @@ func main() {
 		log.Fatal("Error connecting to database : ", err)
 	}
 
-	log.Println("Connected to database : ", db)
+	authorRepo := repository.NewAuthorRepository(db)
 
-	router := gin.Default()
+	authorService := service.NewAuthorService(authorRepo)
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello World from gin gaes",
-		})
-	})
+	authorController := controller.NewAuthorController(authorService)
 
-	err = router.Run(":8080")
-	if err != nil {
-		log.Fatal("Error running server : ", err)
-	}
+	api := api.NewAPI(authorController)
+	api.Run()
 }
