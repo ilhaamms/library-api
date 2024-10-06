@@ -48,7 +48,7 @@ func (s *authorService) Save(author request.CreateAuthor) (*response.CreateAutho
 
 	return &response.CreateAuthor{
 		Name:      author.Name,
-		Birthdate: birthdate,
+		BirthDate: birthdate,
 	}, nil
 }
 
@@ -133,6 +133,6 @@ func (s *authorService) UpdateById(id int, author request.UpdateAuthor) (*respon
 
 	return &response.UpdateAuthor{
 		Name:      authorResponse.Name,
-		Birthdate: authorResponse.Birthdate,
+		BirthDate: authorResponse.BirthDate,
 	}, nil
 }

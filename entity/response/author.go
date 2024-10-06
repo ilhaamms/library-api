@@ -4,18 +4,24 @@ import "time"
 
 type CreateAuthor struct {
 	Name      string    `json:"name"`
-	Birthdate time.Time `json:"birth_date" gorm:"column:birth_date"`
+	BirthDate time.Time `json:"birth_date" gorm:"column:birth_date"`
 }
 
 type Author struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
-	Birthdate time.Time `json:"birth_date" gorm:"column:birth_date"`
+	BirthDate time.Time `json:"birth_date" gorm:"column:birth_date"`
+}
+
+type AuthorBook struct {
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	BirthDate string `json:"birth_date" gorm:"column:birth_date"`
 }
 
 type UpdateAuthor struct {
 	Name      string    `json:"name"`
-	Birthdate time.Time `json:"birth_date" gorm:"column:birth_date"`
+	BirthDate time.Time `json:"birth_date" gorm:"column:birth_date"`
 }
 
 type WebResponseAuthor struct {

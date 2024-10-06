@@ -18,13 +18,16 @@ func main() {
 
 	authorRepo := repository.NewAuthorRepository(db)
 	userRepo := repository.NewUserRepository(db)
+	bookRepo := repository.NewBookRepository(db)
 
 	authorService := service.NewAuthorService(authorRepo)
 	userService := service.NewUserService(userRepo)
+	bookService := service.NewBookService(bookRepo)
 
 	authorController := controller.NewAuthorController(authorService)
 	userController := controller.NewUserController(userService)
+	bookController := controller.NewBookController(bookService)
 
-	api := api.NewAPI(authorController, userController)
+	api := api.NewAPI(authorController, userController, bookController)
 	api.Run()
 }

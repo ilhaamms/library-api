@@ -11,27 +11,27 @@ import (
 	"github.com/ilhaamms/library-api/service"
 )
 
-type AuthorController interface {
-	CreateAuthor(c *gin.Context)
-	GetAllAuthor(c *gin.Context)
-	GetAuthorsById(c *gin.Context)
-	DeleteAuthorsById(c *gin.Context)
-	UpdateAuthorsById(c *gin.Context)
+type BookController interface {
+	CreateBook(c *gin.Context)
+	GetAllBook(c *gin.Context)
+	GetBookById(c *gin.Context)
+	DeleteBookById(c *gin.Context)
+	Update(c *gin.Context)
 }
 
-type authorController struct {
-	AuthorService service.AuthorService
+type bookController struct {
+	bookService service.BookService
 }
 
-func NewAuthorController(authorService service.AuthorService) AuthorController {
-	return &authorController{AuthorService: authorService}
+func NewBookController(bookService service.BookService) BookController {
+	return &bookController{bookService: bookService}
 }
 
-func (ac *authorController) CreateAuthor(c *gin.Context) {
+func (bc *bookController) CreateBook(c *gin.Context) {
 
-	var author request.CreateAuthor
+	var book request.CreateBook
 
-	err := c.ShouldBind(&author)
+	err := c.ShouldBind(&book)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -40,7 +40,7 @@ func (ac *authorController) CreateAuthor(c *gin.Context) {
 		return
 	}
 
-	_, err = ac.AuthorService.Save(author)
+	_, err = bc.bookService.Save(book)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -49,15 +49,14 @@ func (ac *authorController) CreateAuthor(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, response.WebResponseAuthor{
+	c.JSON(http.StatusCreated, response.WebResponseBook{
 		StatusCode: http.StatusCreated,
-		Message:    "Berhasil menyimpan data author",
-		Data:       author,
+		Message:    "Berhasil menyimpan data book",
+		Data:       book,
 	})
 }
 
-func (ac *authorController) GetAllAuthor(c *gin.Context) {
-
+func (bc *bookController) GetAllBook(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{
@@ -76,13 +75,14 @@ func (ac *authorController) GetAllAuthor(c *gin.Context) {
 		return
 	}
 
-	authors, totalPage, err := ac.AuthorService.FindAll(page, limit)
+	books, totalPages, err := bc.bookService.FindAll(page, limit)
 	if err != nil {
-		if err.Error() == "data author kosong" {
-			c.JSON(http.StatusOK, response.WebResponseAuthor{
+
+		if err.Error() == "data book kosong" {
+			c.JSON(http.StatusOK, response.WebResponseBook{
 				StatusCode: http.StatusOK,
-				Message:    "Data author kosong",
-				Data:       authors,
+				Message:    "Data book kosong",
+				Data:       books,
 			})
 			return
 		}
@@ -94,19 +94,19 @@ func (ac *authorController) GetAllAuthor(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.WebResponseAuthors{
+	c.JSON(http.StatusOK, response.WebResponseBooks{
 		StatusCode: http.StatusOK,
-		Message:    "Berhasil mengambil data list author",
+		Message:    "Data buku berhasil diambil",
 		Pagination: response.Pagination{
 			CurrentPage: page,
-			TotalPage:   totalPage,
+			TotalPage:   totalPages,
 			Limit:       limit,
 		},
-		Data: authors,
+		Data: books,
 	})
 }
 
-func (ac *authorController) GetAuthorsById(c *gin.Context) {
+func (bc *bookController) GetBookById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{
@@ -116,7 +116,7 @@ func (ac *authorController) GetAuthorsById(c *gin.Context) {
 		return
 	}
 
-	author, err := ac.AuthorService.FindById(id)
+	book, err := bc.bookService.FindById(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -125,14 +125,14 @@ func (ac *authorController) GetAuthorsById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.WebResponseAuthor{
+	c.JSON(http.StatusOK, response.WebResponseBook{
 		StatusCode: http.StatusOK,
-		Message:    "Berhasil mengambil data author",
-		Data:       author,
+		Message:    "Data buku berhasil diambil",
+		Data:       book,
 	})
 }
 
-func (ac *authorController) DeleteAuthorsById(c *gin.Context) {
+func (bc *bookController) DeleteBookById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{
@@ -142,7 +142,7 @@ func (ac *authorController) DeleteAuthorsById(c *gin.Context) {
 		return
 	}
 
-	author, err := ac.AuthorService.DeleteById(id)
+	book, err := bc.bookService.DeleteById(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -151,14 +151,15 @@ func (ac *authorController) DeleteAuthorsById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.WebResponseAuthor{
+	c.JSON(http.StatusOK, response.WebResponseBook{
 		StatusCode: http.StatusOK,
-		Message:    "Berhasil menghapus data author",
-		Data:       author,
+		Message:    "Data buku berhasil dihapus",
+		Data:       book,
 	})
 }
 
-func (ac *authorController) UpdateAuthorsById(c *gin.Context) {
+func (bc *bookController) Update(c *gin.Context) {
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{
@@ -168,9 +169,9 @@ func (ac *authorController) UpdateAuthorsById(c *gin.Context) {
 		return
 	}
 
-	var author request.UpdateAuthor
+	var book request.UpdateBook
 
-	err = c.ShouldBind(&author)
+	err = c.ShouldBind(&book)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -179,7 +180,7 @@ func (ac *authorController) UpdateAuthorsById(c *gin.Context) {
 		return
 	}
 
-	authorResponse, err := ac.AuthorService.UpdateById(id, author)
+	_, err = bc.bookService.Update(id, book)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
@@ -188,9 +189,9 @@ func (ac *authorController) UpdateAuthorsById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.WebResponseAuthor{
+	c.JSON(http.StatusOK, response.WebResponseBook{
 		StatusCode: http.StatusOK,
-		Message:    "Berhasil mengupdate data author",
-		Data:       authorResponse,
+		Message:    "Data buku berhasil diupdate",
+		Data:       book,
 	})
 }

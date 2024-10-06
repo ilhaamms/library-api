@@ -99,7 +99,7 @@ func (s *userService) Login(user request.User) (bool, *response.ResponseUserLogi
 	claims := &data.Claims{
 		Username: dataUser.Username,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
 	}
 
