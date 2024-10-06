@@ -18,15 +18,15 @@ type UserService interface {
 	Login(user request.User) (bool, *response.ResponseUserLogin, error)
 }
 
-type userService struct {
+type UserServices struct {
 	UserRepository repository.UserRepository
 }
 
 func NewUserService(userRepository repository.UserRepository) UserService {
-	return &userService{UserRepository: userRepository}
+	return &UserServices{UserRepository: userRepository}
 }
 
-func (s *userService) Save(user request.User) (*response.CreateUser, error) {
+func (s *UserServices) Save(user request.User) (*response.CreateUser, error) {
 
 	if user.Username == "" || user.Password == "" {
 		return nil, errors.New("username dan password wajib diisi")
@@ -63,7 +63,7 @@ func (s *userService) Save(user request.User) (*response.CreateUser, error) {
 	}, nil
 }
 
-func (s *userService) CheckUsername(username string) (bool, error) {
+func (s *UserServices) CheckUsername(username string) (bool, error) {
 	if len(username) < 5 {
 		return false, errors.New("username minimal 5 karakter")
 	}
@@ -80,7 +80,7 @@ func (s *userService) CheckUsername(username string) (bool, error) {
 	return dataUsername, nil
 }
 
-func (s *userService) Login(user request.User) (bool, *response.ResponseUserLogin, error) {
+func (s *UserServices) Login(user request.User) (bool, *response.ResponseUserLogin, error) {
 
 	if user.Username == "" || user.Password == "" {
 		return false, nil, errors.New("username dan password wajib diisi")
@@ -99,7 +99,7 @@ func (s *userService) Login(user request.User) (bool, *response.ResponseUserLogi
 	claims := &data.Claims{
 		Username: dataUser.Username,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 		},
 	}
 

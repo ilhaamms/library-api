@@ -18,15 +18,15 @@ type AuthorService interface {
 	UpdateById(id int, author request.UpdateAuthor) (*response.UpdateAuthor, error)
 }
 
-type authorService struct {
+type AuthorServices struct {
 	AuthorRepo repository.AuthorRepository
 }
 
 func NewAuthorService(authorRepo repository.AuthorRepository) AuthorService {
-	return &authorService{AuthorRepo: authorRepo}
+	return &AuthorServices{AuthorRepo: authorRepo}
 }
 
-func (s *authorService) Save(author request.CreateAuthor) (*response.CreateAuthor, error) {
+func (s *AuthorServices) Save(author request.CreateAuthor) (*response.CreateAuthor, error) {
 
 	if author.Name == "" || author.Birthdate == "" {
 		return nil, errors.New("nama dan tanggal lahir tidak boleh kosong")
@@ -52,7 +52,7 @@ func (s *authorService) Save(author request.CreateAuthor) (*response.CreateAutho
 	}, nil
 }
 
-func (s *authorService) FindAll(page, limit int) (*[]response.Author, int, error) {
+func (s *AuthorServices) FindAll(page, limit int) (*[]response.Author, int, error) {
 	authors, err := s.AuthorRepo.FindAll()
 	if err != nil {
 		return nil, 0, errors.New("gagal mengambil data author : " + err.Error())
@@ -75,7 +75,7 @@ func (s *authorService) FindAll(page, limit int) (*[]response.Author, int, error
 	return &authors, totalPages, nil
 }
 
-func (s *authorService) FindById(id int) (*response.Author, error) {
+func (s *AuthorServices) FindById(id int) (*response.Author, error) {
 
 	if id <= 0 {
 		return nil, errors.New("id tidak valid")
@@ -89,7 +89,7 @@ func (s *authorService) FindById(id int) (*response.Author, error) {
 	return &author, nil
 }
 
-func (s *authorService) DeleteById(id int) (*response.Author, error) {
+func (s *AuthorServices) DeleteById(id int) (*response.Author, error) {
 
 	if id <= 0 {
 		return nil, errors.New("id tidak valid")
@@ -103,7 +103,7 @@ func (s *authorService) DeleteById(id int) (*response.Author, error) {
 	return author, nil
 }
 
-func (s *authorService) UpdateById(id int, author request.UpdateAuthor) (*response.UpdateAuthor, error) {
+func (s *AuthorServices) UpdateById(id int, author request.UpdateAuthor) (*response.UpdateAuthor, error) {
 
 	if id <= 0 {
 		return nil, errors.New("id tidak valid")

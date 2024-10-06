@@ -17,15 +17,15 @@ type BookService interface {
 	Update(id int, book request.UpdateBook) (*response.ResultBook, error)
 }
 
-type bookService struct {
+type BookServices struct {
 	BookRepository repository.BookRepository
 }
 
 func NewBookService(bookRepository repository.BookRepository) BookService {
-	return &bookService{BookRepository: bookRepository}
+	return &BookServices{BookRepository: bookRepository}
 }
 
-func (s *bookService) Save(book request.CreateBook) (*response.CreateBook, error) {
+func (s *BookServices) Save(book request.CreateBook) (*response.CreateBook, error) {
 
 	if book.Title == "" || book.Isbn == "" || book.AuthorId == 0 {
 		return nil, errors.New("judul, isbn, dan author_id tidak boleh kosong")
@@ -64,7 +64,7 @@ func (s *bookService) Save(book request.CreateBook) (*response.CreateBook, error
 
 }
 
-func (s *bookService) FindAll(page, limit int) (*[]response.ResultBook, int, error) {
+func (s *BookServices) FindAll(page, limit int) (*[]response.ResultBook, int, error) {
 	books, err := s.BookRepository.FindAll()
 	if err != nil {
 		return nil, 0, errors.New("gagal mengambil data book : " + err.Error())
@@ -103,7 +103,7 @@ func (s *bookService) FindAll(page, limit int) (*[]response.ResultBook, int, err
 	return &listBook, totalPages, nil
 }
 
-func (s *bookService) FindById(id int) (*response.ResultBook, error) {
+func (s *BookServices) FindById(id int) (*response.ResultBook, error) {
 
 	if id <= 0 {
 		return nil, errors.New("id tidak boleh negatif atau 0")
@@ -128,7 +128,7 @@ func (s *bookService) FindById(id int) (*response.ResultBook, error) {
 	return &dataBook, nil
 }
 
-func (s *bookService) DeleteById(id int) (*response.ResultBook, error) {
+func (s *BookServices) DeleteById(id int) (*response.ResultBook, error) {
 
 	if id <= 0 {
 		return nil, errors.New("id tidak boleh negatif atau 0")
@@ -142,7 +142,7 @@ func (s *bookService) DeleteById(id int) (*response.ResultBook, error) {
 	return book, nil
 }
 
-func (s *bookService) Update(id int, book request.UpdateBook) (*response.ResultBook, error) {
+func (s *BookServices) Update(id int, book request.UpdateBook) (*response.ResultBook, error) {
 
 	if id <= 0 {
 		return nil, errors.New("id tidak boleh negatif atau 0")
