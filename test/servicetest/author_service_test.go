@@ -1,6 +1,7 @@
 package servicetest
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -95,7 +96,7 @@ func TestAuthorService_SaveFailedBirthdateFormat(t *testing.T) {
 	assert.Equal(t, "2000-01-", author.Birthdate)
 }
 
-func TestAuthorService_SaveFailed(t *testing.T) {
+func TestAuthorService_SaveFailedSaveAuthor(t *testing.T) {
 
 	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
 	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
@@ -105,24 +106,43 @@ func TestAuthorService_SaveFailed(t *testing.T) {
 		Birthdate: "2000-01-01",
 	}
 
+	authorRepositoryMock.Mock.On("Save", author).Return(errors.New("gagal menyimpan data author"))
+
+	result, err := authorService.Save(author)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, "Ilhaam", author.Name)
+	assert.Equal(t, "gagal menyimpan data author", err.Error())
+	assert.Equal(t, "2000-01-01", author.Birthdate)
+}
+
+func TestAuthorService_SaveSuccess(t *testing.T) {
+
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	author := request.CreateAuthor{
+		Name:      "Syifa",
+		Birthdate: "2000-06-01",
+	}
+
 	authorRepositoryMock.Mock.On("Save", author).Return(nil)
 
 	result, err := authorService.Save(author)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "Ilhaam", author.Name)
-	assert.Equal(t, "2000-01-01", author.Birthdate)
+	assert.Equal(t, "Syifa", author.Name)
+	assert.Equal(t, "2000-06-01", author.Birthdate)
 }
 
-func TestAuthorService_FindAllFailed(t *testing.T) {
+func TestAuthorService_FindAllDataEmpty(t *testing.T) {
 
 	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
 	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
 
-	authors := []response.Author{}
-
-	authorRepositoryMock.Mock.On("FindAll").Return(authors, nil)
+	authorRepositoryMock.Mock.On("FindAll").Return(nil, errors.New("data author kosong"))
 
 	result, _, err := authorService.FindAll(1, 10)
 
@@ -194,4 +214,141 @@ func TestAuthorService_FindByIdFailedIdInvalid(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Nil(t, result)
 	assert.Equal(t, "id tidak valid", err.Error())
+}
+
+func TestAuthorService_FindByIdSuccess(t *testing.T) {
+
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	birthDate, _ := time.Parse("2006-01-02", "2000-06-11")
+	expectDate, _ := time.Parse("2006-01-02", "2000-06-11")
+
+	author := response.Author{
+		ID:        1,
+		Name:      "Ilhaam Sidiq",
+		BirthDate: birthDate,
+	}
+
+	authorRepositoryMock.Mock.On("FindById", 1).Return(author, nil)
+
+	result, err := authorService.FindById(1)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, 1, author.ID)
+	assert.Equal(t, "Ilhaam Sidiq", author.Name)
+	assert.Equal(t, expectDate, author.BirthDate)
+}
+
+func TestAuthorService_DeleteByIdFailedIdInvalid(t *testing.T) {
+
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	authorRepositoryMock.Mock.On("DeleteById", 0).Return(response.Author{}, nil)
+
+	result, err := authorService.DeleteById(0)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, "id tidak valid", err.Error())
+}
+
+func TestAuthorService_DeleteByIdSuccess(t *testing.T) {
+
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	birthDate, _ := time.Parse("2006-01-02", "2000-06-11")
+	expectDate, _ := time.Parse("2006-01-02", "2000-06-11")
+
+	author := response.Author{
+		ID:        1,
+		Name:      "Ilhaam Sidiq",
+		BirthDate: birthDate,
+	}
+
+	authorRepositoryMock.Mock.On("DeleteById", 1).Return(&author, nil)
+
+	result, err := authorService.DeleteById(1)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, 1, author.ID)
+	assert.Equal(t, "Ilhaam Sidiq", author.Name)
+	assert.Equal(t, expectDate, author.BirthDate)
+}
+
+func TestAuthorService_UpdateByIdFailedIdInvalid(t *testing.T) {
+
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	author := request.UpdateAuthor{
+		Name:      "Ilhaam Sidiq",
+		Birthdate: "2000-06-11",
+	}
+
+	authorRepositoryMock.Mock.On("UpdateById", 0, author).Return(response.Author{}, nil)
+
+	result, err := authorService.UpdateById(0, author)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, "id tidak valid", err.Error())
+}
+
+func TestAuthorService_UpdateByIdFailedNameLength(t *testing.T) {
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	author := request.UpdateAuthor{
+		Name:      "Il",
+		Birthdate: "2000-06-11",
+	}
+
+	authorRepositoryMock.Mock.On("UpdateById", 1, author).Return(&response.Author{}, nil)
+
+	result, err := authorService.UpdateById(1, author)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, "harap masukan nama minimal 3 karakter", err.Error())
+}
+
+func TestAuthorService_UpdateByIdFailedNameBirthdateEmpty(t *testing.T) {
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	author := request.UpdateAuthor{
+		Name:      "",
+		Birthdate: "",
+	}
+
+	authorRepositoryMock.Mock.On("UpdateById", 1, author).Return(&response.Author{}, nil)
+
+	result, err := authorService.UpdateById(1, author)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, "field name dan birthdate tidak boleh kosong", err.Error())
+}
+
+func TestAuthorService_UpdateByIdFormat(t *testing.T) {
+	var authorRepositoryMock = repomock.AuthorRepositoryMock{Mock: mock.Mock{}}
+	var authorService = service.AuthorServices{AuthorRepo: &authorRepositoryMock}
+
+	author := request.UpdateAuthor{
+		Name:      "Ilhaam",
+		Birthdate: "2000-06-",
+	}
+
+	authorRepositoryMock.Mock.On("UpdateById", 1, author).Return(&response.Author{}, nil)
+
+	result, err := authorService.UpdateById(1, author)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, "format bithdate salah, format harus YYYY-MM-DD atau tanggal, bulan anda tidak valid", err.Error())
 }
