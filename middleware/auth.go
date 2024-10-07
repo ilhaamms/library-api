@@ -1,6 +1,12 @@
 package middleware
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
+	"io"
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/ilhaamms/library-api/entity/data"
@@ -35,8 +41,39 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("claims", claims)
-		c.Next()
+		var computedHash string
+		var bodyBytes []byte
 
+		if c.Request.Body != nil {
+			bodyBytes, _ = io.ReadAll(c.Request.Body)
+			computedHash = computeHash(bodyBytes)
+		} else {
+			computedHash = computeHash([]byte(tokenString))
+		}
+
+		c.Request.Header.Set("X-Request-Hash", computedHash)
+
+		hashHeader := c.GetHeader("X-Request-Hash")
+
+		if hashHeader != computedHash {
+			log.Println("hashHeader", hashHeader)
+			c.JSON(400, gin.H{
+				"message": "data integrity validation failed",
+			})
+			c.Abort()
+			return
+		}
+
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		c.Set("claims", claims)
+
+		c.Next()
 	}
+}
+
+func computeHash(data []byte) string {
+	hash := sha256.New()
+	hash.Write(data)
+	return hex.EncodeToString(hash.Sum(nil))
 }

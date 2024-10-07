@@ -11,7 +11,10 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
-require github.com/stretchr/testify v1.9.0
+require (
+	github.com/go-playground/assert/v2 v2.2.0
+	github.com/stretchr/testify v1.9.0
+)
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect
