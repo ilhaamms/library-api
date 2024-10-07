@@ -45,7 +45,7 @@ func (r *authorRepository) FindById(id int) (response.Author, error) {
 	var author response.Author
 	err := r.db.Table("author").Where("id = ?", id).First(&author).Error
 	if err != nil {
-		return author, err
+		return response.Author{}, err
 	}
 
 	return author, nil

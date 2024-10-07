@@ -43,7 +43,7 @@ func (s *AuthorServices) Save(author request.CreateAuthor) (*response.CreateAuth
 
 	err = s.AuthorRepo.Save(author)
 	if err != nil {
-		return nil, errors.New("gagal menyimpan data author : " + err.Error())
+		return nil, err
 	}
 
 	return &response.CreateAuthor{
@@ -55,7 +55,7 @@ func (s *AuthorServices) Save(author request.CreateAuthor) (*response.CreateAuth
 func (s *AuthorServices) FindAll(page, limit int) (*[]response.Author, int, error) {
 	authors, err := s.AuthorRepo.FindAll()
 	if err != nil {
-		return nil, 0, errors.New("gagal mengambil data author : " + err.Error())
+		return nil, 0, err
 	}
 
 	if len(authors) == 0 {
@@ -83,8 +83,12 @@ func (s *AuthorServices) FindById(id int) (*response.Author, error) {
 
 	author, err := s.AuthorRepo.FindById(id)
 	if err != nil {
-		return nil, errors.New("author tidak ditemukan")
+		return nil, err
 	}
+
+	// if author == (response.Author{}) {
+	// 	return nil, errors.New("author tidak ditemukan")
+	// }
 
 	return &author, nil
 }
